@@ -25,8 +25,8 @@ def requires_login(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.user is None:
-            flash(u'U need to be signed in for this page.')
-            return redirect(url_for("index", next=request.path))
+            flash(u'少年请先登录~（≧▼≦；)')
+            return redirect(url_for("tags.index", next=request.path))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -101,6 +101,7 @@ def fm_result(task_id):
 
 
 @mod.route("/mine")
+@requires_login
 def mine_tags():
     return render_template("tags.html")
 
