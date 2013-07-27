@@ -23,18 +23,7 @@ queue = Queue()
 users = db.users
 
 
-def get_songs(email, passwd, captcha, captcha_id):
-    login_url = "http://douban.fm/j/login"
-    print email, passwd, captcha, captcha_id
-    data = {
-        "source": "radio",
-        "alias": email,
-        "form_password": passwd,
-        "captcha_solution": captcha,
-        "captcha_id": captcha_id,
-    }
-    login_s = requests.Session()
-    login_r = login_s.post(login_url, data=data)
+def get_songs(login_s):
     like_url = "http://douban.fm/mine?type=liked#!type=liked"
     headers = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -118,13 +107,13 @@ class threadUrl(threading.Thread):
 
 
 @celery.task(name="tasks.fm_task")
-def fm_task(user_id, email, passwd, catpcha, captcha_id):
+def fm_task(login_s, user_id):
     for i in range(10):
         t = threadUrl(queue)
         t.setDaemon(True)
         t.start()
 
-    songs_url = get_songs(email, passwd, catpcha, captcha_id)
+    songs_url = get_songs(login_s)
     user_tmp = users.find_one({'user_id': user_id})
     if user_tmp:
         users.remove({'user_id': user_id})

@@ -23,14 +23,14 @@
      </div>
    </div>
   </div>
-  <div id="messages-wrap">
-    <div id="messages">
-      {% for category, msg in get_flashed_messages(with_categories=true) %}
-        <p class="message flash-{{ category }}">{{ msg }}</p>
-      {% endfor %}
-    </div>
-  </div>
   <div class="container">
+    <div id="messages-wrap">
+      <div id="messages"  class="span6">
+      {% for category, msg in get_flashed_messages(with_categories=true) %}
+        <p class=" alert alert-{{ category }}">{{ msg }}</p>
+      {% endfor %}
+      </div>
+    </div>
     {% block content %}{% endblock %}
     <footer id="footer">
     {% block footer %}
