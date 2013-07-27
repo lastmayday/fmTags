@@ -39,15 +39,9 @@ def before_request():
 
 @mod.route("/")
 def index():
-    headers = {
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Encoding": "gzip,deflate,sdch",
-        "Accept-Language": "zh-CN,zh;q=0.8",
-        "Connection": "keep-alive",
-        "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36"
-    }
     captcha_url = "http://douban.fm/j/new_captcha"
-    captcha_r = requests.get(captcha_url, headers=headers)
+    data = {"ck": "null"}
+    captcha_r = requests.post(captcha_url, data=data)
     captcha_id = captcha_r.content.strip('"')
     img_url = "http://douban.fm/misc/captcha?size=m&id="+captcha_id
     return render_template('index.html', captcha_id=captcha_id, captcha_url=img_url)
