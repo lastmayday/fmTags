@@ -2,7 +2,7 @@
 
 from __future__ import absolute_import
 from celery import Celery
-from fm import app
+from app import app
 
 celery = Celery('tasks', broker="redis://localhost:6379/0")
 celery.config_from_object('config')
@@ -117,8 +117,8 @@ class threadUrl(threading.Thread):
             self.queue.task_done()
 
 
-@celery.task()
-def fm(user_id, email, passwd, catpcha, captcha_id):
+@celery.task(name="tasks.fm_task")
+def fm_task(user_id, email, passwd, catpcha, captcha_id):
     for i in range(10):
         t = threadUrl(queue)
         t.setDaemon(True)

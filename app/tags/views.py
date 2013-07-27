@@ -2,7 +2,7 @@ import json
 from flask import Flask, Blueprint, abort, request, session, jsonify
 from flask import render_template, make_response, redirect, url_for, abort
 from flask import g, flash
-from tasks import fm, users, tags
+from tasks import *
 
 
 import hashlib
@@ -53,7 +53,7 @@ def get_fm():
         captcha = request.form['captcha']
         captcha_id = request.form['captcha_id']
         user_id = hashlib.md5(email).hexdigest()
-        res = fm.apply_async((user_id, email, passwd, captcha, captcha_id))
+        res = fm_task.apply_async((user_id, email, passwd, captcha, captcha_id))
         context = {"id": res.task_id}
         resp = make_response(render_template('tags.html'))
         session['user'] = user_id
