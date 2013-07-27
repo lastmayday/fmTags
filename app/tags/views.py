@@ -1,3 +1,5 @@
+#-*- coding:utf-8 -*-
+
 import json
 from flask import Flask, Blueprint, abort, request, session, jsonify
 from flask import render_template, make_response, redirect, url_for, abort
@@ -63,21 +65,25 @@ def get_fm():
         }
         login_s = requests.Session()
         login_r = login_s.post(login_url, data=data)
-        res = login_r.json()
-        if  'err_msg' in res:
-            error = res['err_msg']
-            flash(error, 'error')
+        try:
+            res = login_r.json()
+            if  'err_msg' in res:
+                error = res['err_msg']
+                flash(error, 'error')
+                return redirect(url_for("tags.index"))
+            else:
+                user_id = hashlib.md5(email).hexdigest()
+                res = tasks.fm_task.apply_async((login_s,user_id))
+                context = {"id": res.task_id}
+                resp = make_response(render_template('tags.html'))
+                session['user'] = user_id
+                resp.set_cookie('task_id', context['id'])
+                return resp
+        except Exception:
+            flash(u'登录错误...', 'error')
             return redirect(url_for("tags.index"))
-        else:
-            user_id = hashlib.md5(email).hexdigest()
-            res = tasks.fm_task.apply_async((login_s,user_id))
-            context = {"id": res.task_id}
-            resp = make_response(render_template('tags.html'))
-            session['user'] = user_id
-            resp.set_cookie('task_id', context['id'])
-            return resp
     else:
-        return render_template("tags.html")
+        return redirect(url_for("tags.mine"))
 
 
 @mod.route("/fm/result/<task_id>")
