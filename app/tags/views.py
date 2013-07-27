@@ -57,11 +57,11 @@ def get_fm():
         captcha_id = request.form['captcha_id']
         login_url = "http://douban.fm/j/login"
         data = {
-        "source": "radio",
-        "alias": email,
-        "form_password": passwd,
-        "captcha_solution": captcha,
-        "captcha_id": captcha_id,
+            "source": "radio",
+            "alias": email,
+            "form_password": passwd,
+            "captcha_solution": captcha,
+            "captcha_id": captcha_id,
         }
         login_s = requests.Session()
         login_r = login_s.post(login_url, data=data)
