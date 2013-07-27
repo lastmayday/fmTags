@@ -2,7 +2,7 @@ import json
 from flask import Flask, Blueprint, abort, request, session, jsonify
 from flask import render_template, make_response, redirect, url_for, abort
 from flask import g, flash
-from tasks import *
+from tasks import fm_task, users, tags
 
 
 import hashlib
@@ -65,7 +65,7 @@ def get_fm():
 
 @mod.route("/fm/result/<task_id>")
 def fm_result(task_id):
-    retval = fm.AsyncResult(task_id).get(timeout=300)
+    retval = fm_task.AsyncResult(task_id).get(timeout=300)
     if retval == False:
         return jsonify({'error': True})
     data = {'error': False, 'tags': []}
