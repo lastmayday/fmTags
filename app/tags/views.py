@@ -2,7 +2,8 @@ import json
 from flask import Flask, Blueprint, abort, request, session, jsonify
 from flask import render_template, make_response, redirect, url_for, abort
 from flask import g, flash
-from tasks import fm_task, users, tags
+import tasks
+#from tasks import fm_task, users, tags
 
 
 import hashlib
@@ -33,7 +34,7 @@ def requires_login(f):
 def before_request():
     g.user = None
     if 'user' in session:
-        g.user = users.find_one({'user_id': session['user']})
+        g.user = tasks.users.find_one({'user_id': session['user']})
     
 
 @mod.route("/")
@@ -53,7 +54,7 @@ def get_fm():
         captcha = request.form['captcha']
         captcha_id = request.form['captcha_id']
         user_id = hashlib.md5(email).hexdigest()
-        res = fm_task.apply_async((user_id, email, passwd, captcha, captcha_id))
+        res = tasks.fm_task.apply_async((user_id, email, passwd, captcha, captcha_id))
         context = {"id": res.task_id}
         resp = make_response(render_template('tags.html'))
         session['user'] = user_id
@@ -65,7 +66,7 @@ def get_fm():
 
 @mod.route("/fm/result/<task_id>")
 def fm_result(task_id):
-    retval = fm_task.AsyncResult(task_id).get(timeout=300)
+    retval = tasks.fm_task.AsyncResult(task_id).get(timeout=300)
     if retval == False:
         return jsonify({'error': True})
     data = {'error': False, 'tags': []}
@@ -89,11 +90,11 @@ def shuffle():
 
 @mod.route("/api/shuffle")
 def shuffle_api():
-    user_count = users.count()
+    user_count = tasks.users.count()
     num = random.randint(1, user_count-1)
-    user = users.find().limit(-1).skip(num).next()
+    user = tasks.users.find().limit(-1).skip(num).next()
     user_id = user['_id']
-    res = tags.find({'user_id':user_id}).sort([('per', pymongo.DESCENDING)]).limit(60)
+    res = tasks.tags.find({'user_id':user_id}).sort([('per', pymongo.DESCENDING)]).limit(60)
     retval = [json.dumps(tmp, default=json_util.default) for tmp in res]
     if retval == False:
         return jsonify({'error': True})
