@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}我的红心Tags{% endblock %}
+{% block css %}<link rel="stylesheet" type="text/css" href="static/css/jqcloud.css" />{% endblock %}
+{% block js %}
+<script type="text/javascript" src="static/js/jqcloud-1.0.4.min.js"></script>
+<script type="text/javascript">
+      $.ajax({
+	      type: "GET",
+          url: "/api/shuffle",
+          dataType: "json",
+          success: function(data){
+              data = data.data;
+              console.log(data.error);
+              if(data.error == false){
+                  var word_array = []
+	              var tags = data.tags;
+                  console.log(tags);
+                  for(i=0;i<tags.length;i++){
+				      word_array.push({text: tags[i]['tag'], weight: tags[i]['per']});			  
+				  }
+                  $(function(){
+                      $("#example").jQCloud(word_array);
+                  });
+	          }
+	      },
+          error: function(XMLHttpRequest, textStatus, errorThrown){
+		      console.log(textStatus)
+		  }
+          
+	  });
+    </script>
+{% endblock %}
+
+
+{% block content %}
+<div id="example" style="width: 550px; height: 350px;"></div>
+{% endblock %}

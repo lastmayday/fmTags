@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block title %}豆瓣红心Tags{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span10 offset1">
+    <form action="{{ url_for('tags.get_fm') }}" method="POST" name="captcha_form">
+      <label for="user_email">邮箱:</label>
+      <p><input id="user_email" type="text" name="user_email" /></p>
+      <label for="user_passwd">密码:</label>
+      <p><input id="user_passwd" type="password" name="user_passwd" /></p>
+      <label for="captcha">验证码:</label>
+      <p><img src={{ captcha_url }} alt="验证码" /></p>
+      <p><input type="text" id="captcha" name="captcha" /></p>
+      <input name="captcha_id" value={{ captcha_id }} type="hidden">
+      <button type="submit">确认</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

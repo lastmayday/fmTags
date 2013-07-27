@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}我的红心Tags{% endblock %}
+{% block css %}<link rel="stylesheet" type="text/css" href="static/css/jqcloud.css" />{% endblock %}
+{% block js %}
+<script type="text/javascript" src="static/js/jqcloud-1.0.4.min.js"></script>
+<script type="text/javascript">
+      var task_id = $.cookie('task_id');
+      console.log(task_id);
+      $.ajax({
+	      type: "GET",
+          url: "/fm/result/"+task_id,
+          dataType: "json",
+          beforeSend: function(){
+	          var loading = $("<div id='tags_loading'>loading</div>");
+              loading.insertBefore($("#tags_part"));
+	      },
+          complete: function(){
+	          $("#tags_loading").remove();
+	      },
+          success: function(data){
+              data = data.data;
+              console.log(data.error);
+              if(data.error == false){
+                  var word_array = []
+	              var tags = data.tags;
+                  console.log(tags);
+                  for(i=0;i<tags.length;i++){
+				      word_array.push({text: tags[i]['tag'], weight: tags[i]['per']});			  
+				  }
+                  $(function(){
+                      $("#tags_part").jQCloud(word_array);
+                  });
+	          }
+	      },
+          error: function(XMLHttpRequest, textStatus, errorThrown){
+		      console.log(textStatus)
+		  }
+          
+	  });
+    </script>
+{% endblock %}
+
+
+{% block content %}
+<div id="tags_part" style="width: 550px; height: 350px;"></div>
+{% endblock %}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css" />
+    {% block css %}{% endblock %}
+    <script src="static/js/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="static/js/jquery.cookie.js"></script>
+    {% block js %}{% endblock %}
+  </head>
+  <body>
+  <div class="navbar">
+   <div class="navbar-inner">
+     <div class="container" style="width:auto">
+       <a class="brand" href="/">豆瓣红心Tags</a>
+       <div class="nav-collapse">
+         <ul class="nav pull-right">
+          <li><a href="/mine" title="">我的红心Tags</a></li>
+          <li><a target="_blank" href="/shuffle" title="">随便看看</a></li>
+        </ul>
+       </div>
+     </div>
+   </div>
+  </div>
+  <div id="messages-wrap">
+    <div id="messages">
+      {% for category, msg in get_flashed_messages(with_categories=true) %}
+        <p class="message flash-{{ category }}">{{ msg }}</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="container">
+    {% block content %}{% endblock %}
+    <footer id="footer">
+    {% block footer %}
+      &copy; Copyright 2013 by <a target="_blank" href="http://lastmayday.org/">lastmayday</a>.
+    {% endblock %}
+    </footer>
+   </div>
+  </body>
+</html>
