@@ -23,7 +23,7 @@ queue = Queue()
 users = db.users
 
 
-def get_songs(login_s):
+def get_songs(login_s,spbid):
     like_url = "http://douban.fm/mine?type=liked#!type=liked"
     headers = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -51,7 +51,7 @@ def get_songs(login_s):
     start = 0
     songs = []
     while True:
-        songs_url = "http://douban.fm/j/play_record?ck=" + ck + "&type=liked&start=" + str(start)
+        songs_url = "http://douban.fm/j/play_record?ck=" + ck + "&spbid=" + spbid + "&type=liked&start=" + str(start)
         songs_r = login_s.get(songs_url, headers=headers)
         songs_temp = songs_r.json()['songs']
         if len(songs_temp) == 0:
@@ -107,13 +107,13 @@ class threadUrl(threading.Thread):
 
 
 @celery.task(name="tasks.fm_task")
-def fm_task(login_s, user_id):
+def fm_task(login_s, user_id,spbid):
     for i in range(10):
         t = threadUrl(queue)
         t.setDaemon(True)
         t.start()
 
-    songs_url = get_songs(login_s)
+    songs_url = get_songs(login_s,spbid)
     user_tmp = users.find_one({'user_id': user_id})
     if user_tmp:
         users.remove({'user_id': user_id})

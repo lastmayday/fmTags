@@ -15,6 +15,7 @@ import random
 from bson import json_util
 import HTMLParser
 from functools import wraps
+from urlparse import urlparse
 
 html_parser = HTMLParser.HTMLParser()
 
@@ -65,6 +66,8 @@ def get_fm():
         }
         login_s = requests.Session()
         login_r = login_s.post(login_url, data=data)
+        spbid = (login_r.cookies["bid"]).strip('"')
+        spbid = urlparse("::"+spbid).geturl()
         try:
             res = login_r.json()
             if  'err_msg' in res:
@@ -73,7 +76,7 @@ def get_fm():
                 return redirect(url_for("tags.index"))
             else:
                 user_id = hashlib.md5(email).hexdigest()
-                res = tasks.fm_task.apply_async((login_s,user_id))
+                res = tasks.fm_task.apply_async((login_s,user_id,spbid))
                 context = {"id": res.task_id}
                 resp = make_response(render_template('tags.html'))
                 session['user'] = user_id
