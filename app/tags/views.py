@@ -2,10 +2,9 @@
 
 import json
 from flask import Flask, Blueprint, abort, request, session, jsonify
-from flask import render_template, make_response, redirect, url_for, abort
+from flask import render_template, make_response, redirect, url_for
 from flask import g, flash
 import tasks
-
 
 import hashlib
 import requests
@@ -16,9 +15,12 @@ from bson import json_util
 import HTMLParser
 from functools import wraps
 from urlparse import urlparse
+import re
+from ghost import Ghost
 
+
+ghost = Ghost()
 html_parser = HTMLParser.HTMLParser()
-
 mod = Blueprint('tags', __name__, url_prefix='')
 
 
@@ -66,8 +68,16 @@ def get_fm():
         }
         login_s = requests.Session()
         login_r = login_s.post(login_url, data=data)
-        spbid = (login_r.cookies["bid"]).strip('"')
-        spbid = urlparse("::"+spbid).geturl()
+        bid = (login_r.cookies["bid"]).strip('"')
+        like_url = "http://douban.fm/mine?type=liked#!type=liked"
+        like_r = login_s.get(like_url)
+        like_content = like_r.content
+        script_re = re.compile(r'<script>([\s\S]+?)</script>')
+        scripts = script_re.findall(like_content)
+        script = scripts[-2]
+        spbid, resources = ghost.evaluate(script+';window.user_id_sign;')
+        spbid = urlparse(spbid+bid).geturl()
+        ck = (like_r.cookies["ck"]).strip('"')
         try:
             res = login_r.json()
             if  'err_msg' in res:
@@ -76,9 +86,9 @@ def get_fm():
                 return redirect(url_for("tags.index"))
             else:
                 user_id = hashlib.md5(email).hexdigest()
-                res = tasks.fm_task.apply_async((login_s,user_id,spbid))
+                res = tasks.fm_task.apply_async((login_s, ck, user_id, spbid))
                 context = {"id": res.task_id}
-                resp = make_response(render_template('tags.html'))
+                resp = make_response(render_template('tags.html', encode_script=script))
                 session['user'] = user_id
                 resp.set_cookie('task_id', context['id'])
                 return resp
