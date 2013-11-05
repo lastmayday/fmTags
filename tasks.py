@@ -15,6 +15,7 @@ import re
 import threading
 import json
 from bson import json_util
+import time
 
 connection = pymongo.MongoClient()
 db = connection.fm
@@ -23,7 +24,7 @@ queue = Queue()
 users = db.users
 
 
-def get_songs(login_s, ck, spbid):
+def get_songs(login_s, bid, ck, spbid):
     headers = {
         "Accept": "*/*",
         "Accept-Encoding": "gzip,deflate,sdch",
@@ -34,11 +35,15 @@ def get_songs(login_s, ck, spbid):
         "User-Agent": "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1500.71 Safari/537.36",
         "X-Requested-With": "XMLHttpRequest"
     }
+    cookies = {
+        "bid": bid,
+        "ck": ck
+    }
     start = 0
     songs = []
     while True:
         songs_url = "http://douban.fm/j/play_record?ck=" + ck + "&spbid=" + spbid + "&type=liked&start=" + str(start)
-        songs_r = login_s.get(songs_url, headers=headers)
+        songs_r = login_s.get(songs_url, headers=headers, cookies=cookies)
         songs_temp = songs_r.json()['songs']
         if len(songs_temp) == 0:
             break
@@ -47,7 +52,7 @@ def get_songs(login_s, ck, spbid):
     songs_url = []
     for song in songs:
         songs_url.append(song['path'])
-    print songs_url
+    songs_url = songs_url
     return songs_url
 
 
@@ -72,7 +77,7 @@ class threadUrl(threading.Thread):
             info = self.queue.get()
             url = info[0]
             tag_user_id = info[1]
-            print url, 'start'
+            print url
             res_tags = get_tags(url)
             amount = 0.0
             for t in res_tags:
@@ -88,17 +93,18 @@ class threadUrl(threading.Thread):
                                 {"$set": {'per': per_ori+per}})
                 else:
                     tags.insert({'tag': tag, 'per': per, 'user_id': tag_user_id})
+            time.sleep(0.1)
             self.queue.task_done()
 
 
 @celery.task(name="tasks.fm_task")
-def fm_task(login_s, ck, user_id,spbid):
-    for i in range(10):
+def fm_task(login_s, bid, ck, user_id,spbid):
+    for i in range(20):
         t = threadUrl(queue)
         t.setDaemon(True)
         t.start()
 
-    songs_url = get_songs(login_s, ck, spbid)
+    songs_url = get_songs(login_s, bid, ck, spbid)
     user_tmp = users.find_one({'user_id': user_id})
     if user_tmp:
         users.remove({'user_id': user_id})
@@ -110,7 +116,8 @@ def fm_task(login_s, ck, user_id,spbid):
     else:
         return False
 
-    queue.join()      
+    queue.join()
+    print "down"    
     res = tags.find({'user_id':tag_user_id}).sort([('per', pymongo.DESCENDING)]).limit(60)
     data = [json.dumps(tmp, default=json_util.default) for tmp in res]
     return data

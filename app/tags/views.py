@@ -1,7 +1,7 @@
 #-*- coding:utf-8 -*-
 
 import json
-from flask import Flask, Blueprint, abort, request, session, jsonify
+from flask import Flask, Blueprint, request, session, jsonify
 from flask import render_template, make_response, redirect, url_for
 from flask import g, flash
 import tasks
@@ -16,6 +16,8 @@ import HTMLParser
 from functools import wraps
 from urlparse import urlparse
 import re
+import urllib2
+import urllib
 from ghost import Ghost
 
 
@@ -43,12 +45,18 @@ def before_request():
 
 @mod.route("/")
 def index():
+    bid_url = "http://douban.fm/common_login?redir=/mine"
+    bid_r = urllib2.Request(bid_url)
+    content = urllib2.urlopen(bid_r)
+    cookie = content.headers.get('Set-Cookie')
+    bid_re = re.compile(r'bid=\"([\s\S]+?)\";')
+    bid = bid_re.findall(cookie)[0]
     captcha_url = "http://douban.fm/j/new_captcha"
-    data = {"ck": "null"}
-    captcha_r = requests.post(captcha_url, data=data)
-    captcha_id = captcha_r.content.strip('"')
+    captcha_r = urllib2.Request(captcha_url)
+    captcha_content = urllib2.urlopen(captcha_r)
+    captcha_id = captcha_content.read().strip('"')
     img_url = "http://douban.fm/misc/captcha?size=m&id="+captcha_id
-    return render_template('index.html', captcha_id=captcha_id, captcha_url=img_url)
+    return render_template('index.html', captcha_id=captcha_id, captcha_url=img_url, bid=bid)
 
 
 @mod.route("/fm", methods=['POST', 'GET'])
@@ -58,6 +66,7 @@ def get_fm():
         passwd = request.form['user_passwd']
         captcha = request.form['captcha']
         captcha_id = request.form['captcha_id']
+        bid = request.form['bid']
         login_url = "http://douban.fm/j/login"
         data = {
             "source": "radio",
@@ -68,7 +77,7 @@ def get_fm():
         }
         login_s = requests.Session()
         login_r = login_s.post(login_url, data=data)
-        bid = (login_r.cookies["bid"]).strip('"')
+        ck = (login_r.cookies["ck"]).strip('"')
         like_url = "http://douban.fm/mine?type=liked#!type=liked"
         like_r = login_s.get(like_url)
         like_content = like_r.content
@@ -77,7 +86,6 @@ def get_fm():
         script = scripts[-2]
         spbid, resources = ghost.evaluate(script+';window.user_id_sign;')
         spbid = urlparse(spbid+bid).geturl()
-        ck = (like_r.cookies["ck"]).strip('"')
         try:
             res = login_r.json()
             if  'err_msg' in res:
@@ -86,7 +94,7 @@ def get_fm():
                 return redirect(url_for("tags.index"))
             else:
                 user_id = hashlib.md5(email).hexdigest()
-                res = tasks.fm_task.apply_async((login_s, ck, user_id, spbid))
+                res = tasks.fm_task.apply_async((login_s, bid, ck, user_id, spbid))
                 context = {"id": res.task_id}
                 resp = make_response(render_template('tags.html', encode_script=script))
                 session['user'] = user_id
