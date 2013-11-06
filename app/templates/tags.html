@@ -1,10 +1,10 @@
 {% extends "layout.html" %}
 
 {% block title %}我的红心Tags{% endblock %}
-{% block css %}<link rel="stylesheet" type="text/css" href="static/css/jqcloud.css" />{% endblock %}
+{% block css %}<link rel="stylesheet" href="static/css/jqcloud.css" />{% endblock %}
 {% block js %}
-<script type="text/javascript" src="static/js/jqcloud-1.0.4.min.js"></script>
-<script type="text/javascript">
+<script src="static/js/jqcloud-1.0.4.min.js"></script>
+<script>
      var task_id = $.cookie('task_id');
       console.log(task_id);
       $.ajax({
@@ -18,7 +18,7 @@
                   var word_array = []
 	              var tags = data.tags;
                   for(i=0;i<tags.length;i++){
-				      word_array.push({text: tags[i]['tag'], weight: tags[i]['per']});			  
+				      word_array.push({text: tags[i]['tag'], weight: tags[i]['per']});
 				  }
 				  $("#tags_loading").remove();
                   $(function(){
@@ -34,15 +34,14 @@
     </script>
 {% endblock %}
 
-
 {% block content %}
 <div id="tags_loading" class="row">
-  <div class="alert alert-success span8">
-     Tag娘在很努力地加载中~ ヾ(･ω･*)ﾉ
+  <div class="span6">
+    <div class="alert alert-success">Tag娘在很努力地加载中~ ヾ(･ω･*)ﾉ </div>
   </div>
   <div class="span8">
     <img src="../static/img/loading.gif" />
   </div>
 </div>
-<div id="tags_part" style="width: 550px; height: 350px;"></div>
+<div id="tags_part"></div>
 {% endblock %}

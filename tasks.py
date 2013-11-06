@@ -41,7 +41,7 @@ def get_songs(login_s, bid, ck, spbid):
     }
     start = 0
     songs = []
-    while True:
+    while start < 100:
         songs_url = "http://douban.fm/j/play_record?ck=" + ck + "&spbid=" + spbid + "&type=liked&start=" + str(start)
         songs_r = login_s.get(songs_url, headers=headers, cookies=cookies)
         songs_temp = songs_r.json()['songs']

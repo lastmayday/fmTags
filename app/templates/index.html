@@ -3,8 +3,8 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="span10 offset1">
+<div class="row" id="login-form">
+  <div class="span10">
     <form action="{{ url_for('tags.get_fm') }}" method="POST" name="captcha_form">
       <label for="user_email">邮箱:</label>
       <p><input id="user_email" type="text" name="user_email" /></p>

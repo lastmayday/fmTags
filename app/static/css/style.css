@@ -1,0 +1,30 @@
+#tags_part {
+  width: 550px; 
+  height: 350px;
+  margin: 0 auto;
+}
+
+#messages-wrap, #login-form {
+  max-width: 50%;
+  margin: 0 auto;
+}
+
+.sidebar {
+  max-width: 25%;
+  float: left;
+  margin: 0 2%;
+  border-right: 1px #24E3BE dashed;
+}
+
+.wrapper {
+  max-width: 70%;
+  min-height: 700px;
+  float: left;
+}
+
+footer {
+  clear: both;
+  bottom: 0;
+  font-size: 14px;
+  text-align: center;
+}

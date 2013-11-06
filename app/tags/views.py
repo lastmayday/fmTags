@@ -1,7 +1,7 @@
 #-*- coding:utf-8 -*-
 
 import json
-from flask import Flask, Blueprint, request, session, jsonify
+from flask import Blueprint, request, session, jsonify
 from flask import render_template, make_response, redirect, url_for
 from flask import g, flash
 import tasks
@@ -17,7 +17,6 @@ from functools import wraps
 from urlparse import urlparse
 import re
 import urllib2
-import urllib
 from ghost import Ghost
 
 
@@ -77,15 +76,6 @@ def get_fm():
         }
         login_s = requests.Session()
         login_r = login_s.post(login_url, data=data)
-        ck = (login_r.cookies["ck"]).strip('"')
-        like_url = "http://douban.fm/mine?type=liked#!type=liked"
-        like_r = login_s.get(like_url)
-        like_content = like_r.content
-        script_re = re.compile(r'<script>([\s\S]+?)</script>')
-        scripts = script_re.findall(like_content)
-        script = scripts[-2]
-        spbid, resources = ghost.evaluate(script+';window.user_id_sign;')
-        spbid = urlparse(spbid+bid).geturl()
         try:
             res = login_r.json()
             if  'err_msg' in res:
@@ -93,6 +83,15 @@ def get_fm():
                 flash(error, 'error')
                 return redirect(url_for("tags.index"))
             else:
+                ck = (login_r.cookies["ck"]).strip('"')
+                like_url = "http://douban.fm/mine?type=liked#!type=liked"
+                like_r = login_s.get(like_url)
+                like_content = like_r.content
+                script_re = re.compile(r'<script>([\s\S]+?)</script>')
+                scripts = script_re.findall(like_content)
+                script = scripts[-2]
+                spbid, resources = ghost.evaluate(script+';window.user_id_sign;')
+                spbid = urlparse(spbid+bid).geturl()
                 user_id = hashlib.md5(email).hexdigest()
                 res = tasks.fm_task.apply_async((login_s, bid, ck, user_id, spbid))
                 context = {"id": res.task_id}
@@ -135,10 +134,13 @@ def shuffle():
 @mod.route("/api/shuffle")
 def shuffle_api():
     user_count = tasks.users.count()
-    num = random.randint(1, user_count-1)
-    user = tasks.users.find().limit(-1).skip(num).next()
-    user_id = user['_id']
-    res = tasks.tags.find({'user_id':user_id}).sort([('per', pymongo.DESCENDING)]).limit(60)
+    while True:
+        num = random.randint(1, user_count-1)
+        user = tasks.users.find().limit(-1).skip(num).next()
+        user_id = user['_id']
+        res = tasks.tags.find({'user_id':user_id}).sort([('per', pymongo.DESCENDING)]).limit(60)
+        if res.count():
+            break
     retval = [json.dumps(tmp, default=json_util.default) for tmp in res]
     if retval == False:
         return jsonify({'error': True})

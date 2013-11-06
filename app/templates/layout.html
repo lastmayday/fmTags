@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8"/>
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="static/css/bootstrap.min.css" />
+     <link href="static/css/style.css" rel="stylesheet"/>
     {% block css %}{% endblock %}
     <script src="static/js/jquery-2.0.3.min.js"></script>
-    <script type="text/javascript" src="static/js/jquery.cookie.js"></script>
+    <script src="static/js/jquery.cookie.js"></script>
     {% block js %}{% endblock %}
   </head>
   <body>
@@ -17,27 +18,40 @@
        <div class="nav-collapse">
          <ul class="nav pull-right">
           <li><a href="/mine" title="">我的红心Tags</a></li>
-          <li><a target="_blank" href="/shuffle" title="">随便看看</a></li>
+          <li><a href="/shuffle" title="">随便看看</a></li>
         </ul>
        </div>
      </div>
    </div>
   </div>
-  <div class="container">
-    <div id="messages-wrap">
-      <div id="messages"  class="span6">
+  <div class="sidebar">
+    <div class="row">
+      <div class="col-lg-4">
+         <h2>声明</h2>
+         <p>本站不会记录任何您的密码(仅仅加密后的邮箱)</p>
+         <p>源码放在<a href="https://github.com/lastmayday/fmTags" target="_blank">GitHub</a></p>
+         <br>
+         <p>tags只包含您最新喜欢的前100首歌曲</p>
+         <p>之前豆瓣改过多次代码, 出错请联系<span class="text-info">lastdayinmay#gmail.com</span></p>
+          <p>如果给豆瓣带来了困扰会关闭这个网站的:)</p>
+      </div>
+    </div>
+  </div>
+  <div class="wrapper">
+    <div class="row" id="messages-wrap">
+      <div id="messages"  class="span4">
       {% for category, msg in get_flashed_messages(with_categories=true) %}
         <p class=" alert alert-{{ category }}">{{ msg }}</p>
       {% endfor %}
       </div>
     </div>
     {% block content %}{% endblock %}
-    <footer id="footer">
-    {% block footer %}
-      &copy; Copyright 2013 by <a target="_blank" href="http://lastmayday.org/">lastmayday</a>.
-    {% endblock %}
-    </footer>
   </div>
+  <footer id="footer">
+    {% block footer %}
+      &copy; Made by <a target="_blank" href="http://lastmayday.org/">lastmayday</a> Powered by <a target="_blank" href="http://www.hustonline.net">冰岩作坊</a>
+    {% endblock %}
+  </footer>
 <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
