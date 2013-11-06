@@ -78,22 +78,25 @@ class threadUrl(threading.Thread):
             url = info[0]
             tag_user_id = info[1]
             print url
-            res_tags = get_tags(url)
-            amount = 0.0
-            for t in res_tags:
-                amount += int(t[1])
-            for t in res_tags:
-                tag = t[0].lower()
-                tmp = tags.find_one({'user_id': tag_user_id, 'tag': tag})
-                per = int(t[1])/amount
-                if tmp:
-                    tag_id = tmp['_id']
-                    per_ori = tmp['per']
-                    tags.update({"_id": tag_id},
-                                {"$set": {'per': per_ori+per}})
-                else:
-                    tags.insert({'tag': tag, 'per': per, 'user_id': tag_user_id})
-            time.sleep(0.1)
+            try:
+                res_tags = get_tags(url)
+                amount = 0.0
+                for t in res_tags:
+                    amount += int(t[1])
+                for t in res_tags:
+                    tag = t[0].lower()
+                    tmp = tags.find_one({'user_id': tag_user_id, 'tag': tag})
+                    per = int(t[1])/amount
+                    if tmp:
+                        tag_id = tmp['_id']
+                        per_ori = tmp['per']
+                        tags.update({"_id": tag_id},
+                                    {"$set": {'per': per_ori+per}})
+                    else:
+                        tags.insert({'tag': tag, 'per': per, 'user_id': tag_user_id})
+                time.sleep(0.1)
+            except Exception:
+                pass
             self.queue.task_done()
 
 
