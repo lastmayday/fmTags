@@ -12,8 +12,9 @@ It's beta 0.1 and many need to be improved. Wating for your advices~
 ### Environment
 
 + Python 2.x
++ [Flask](http://flask.pocoo.org)
 + [requests](http://docs.python-requests.org/en/latest/)
-+ [Flask-Celery](https://github.com/ask/flask-celery/)
++ [Celery](http://www.celeryproject.org)
 + [Redis](http://redis.io/)
 + [MongoDB](http://www.mongodb.org/)
 + [ghost.py](http://jeanphix.me/Ghost.py/)
