@@ -2,10 +2,10 @@
 
 Try it at [fm](http://fm.hustonline.net)
 
-It uses Python and simulated login to crawl data, so u need to offer you login Email and password.
-I guarantee that I won't record your password in any way.
+Python and simulated login to crawl data, so u need to offer you login Email and password.
+I won't record your password in any way.
 
-It's beta 0.1 and many need to be improved. Wating for your advices~
+It's beta 0.1 and many to be improved. Wating for your pull requests~
 
 ---------
 
@@ -23,6 +23,7 @@ It's beta 0.1 and many need to be improved. Wating for your advices~
 
 ### To do list
 
-+ Design (maybe I need a designer to improve the site's appearence)
++ Front-End 
++ Design (maybe I need a designer to improve UE)
 + Share with SNS
 + Save picture
