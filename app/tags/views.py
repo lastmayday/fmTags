@@ -10,6 +10,7 @@ import hashlib
 import requests
 import math
 import pymongo
+from pymongo import MongoClient
 import random
 from bson import json_util
 import HTMLParser
@@ -23,6 +24,10 @@ from ghost import Ghost
 ghost = Ghost()
 html_parser = HTMLParser.HTMLParser()
 mod = Blueprint('tags', __name__, url_prefix='')
+connection = pymongo.MongoClient()
+connection = MongoClient()
+db_12 = connection.movie_12
+tags_12 = db_12.tags
 
 
 def requires_login(f):
@@ -87,20 +92,22 @@ def get_fm():
                 like_url = "http://douban.fm/mine?type=liked#!type=liked"
                 like_r = login_s.get(like_url)
                 like_content = like_r.content
-                script_re = re.compile(r'<script>([\s\S]+?)</script>')
-                scripts = script_re.findall(like_content)
-                script = scripts[-2]
-                spbid, resources = ghost.evaluate(script+';window.user_id_sign;')
-                spbid = urlparse(spbid+bid).geturl()
+                # script_re = re.compile(r'<script>([\s\S]+?)</script>')
+                # scripts = script_re.findall(like_content)
+                # script = scripts[-2]
+                # spbid, resources = ghost.evaluate(script+';window.user_id_sign;')
+                # spbid = urlparse(spbid+bid).geturl()
+                spbid = urlparse("::"+bid).geturl()
                 user_id = hashlib.md5(email).hexdigest()
                 res = tasks.fm_task.apply_async((login_s, bid, ck, user_id, spbid))
                 context = {"id": res.task_id}
-                resp = make_response(render_template('tags.html', encode_script=script))
+                # resp = make_response(render_template('tags.html', encode_script=script))
+                resp = make_response(render_template('tags.html'))
                 session['user'] = user_id
                 resp.set_cookie('task_id', context['id'])
                 return resp
         except Exception:
-            flash(u'登录错误...', 'error')
+            flash(u"登录错误...", 'error')
             return redirect(url_for("tags.index"))
     else:
         return redirect(url_for("tags.mine"))
@@ -125,6 +132,24 @@ def fm_result(task_id):
 def mine_tags():
     return render_template("tags.html")
 
+
+@mod.route("/movie")
+def movie_tags():
+    return render_template("movie.html")
+
+@mod.route('/movie/tags/')
+def get_movie_tags():
+    res = tags_12.find().sort([('per', pymongo.DESCENDING)]).limit(60)
+    retval = [json.dumps(tmp, default=json_util.default) for tmp in res]
+    print res
+    data = {'error': False, 'tags': []}
+    for res in retval:
+        res = json.loads(res)
+        tag = html_parser.unescape(res['tag'])
+        per = math.ceil(res['per'])
+        data['tags'].append({'tag': tag.title(), 'per': per})
+    return jsonify(data=data)
+    
 
 @mod.route("/shuffle")
 def shuffle():

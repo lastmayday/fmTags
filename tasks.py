@@ -94,7 +94,7 @@ class threadUrl(threading.Thread):
                                     {"$set": {'per': per_ori+per}})
                     else:
                         tags.insert({'tag': tag, 'per': per, 'user_id': tag_user_id})
-                time.sleep(0.1)
+                time.sleep(0.2)
             except Exception:
                 pass
             self.queue.task_done()

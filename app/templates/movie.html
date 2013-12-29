@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}我的电影Tags{% endblock %}
+{% block css %}<link rel="stylesheet" href="static/css/jqcloud.css" />{% endblock %}
+{% block js %}
+<script src="static/js/jqcloud-1.0.4.min.js"></script>
+<script>
+     var task_id = $.cookie('task_id');
+      console.log(task_id);
+      $.ajax({
+	      type: "GET",
+          url: "/movie/tags/",
+          dataType: "json",
+          success: function(data){
+              data = data.data;
+              console.log(data.error);
+              if(data.error == false){
+                  var word_array = []
+	              var tags = data.tags;
+                  for(i=0;i<tags.length;i++){
+				      word_array.push({text: tags[i]['tag'], weight: tags[i]['per']});
+				  }
+				  $("#tags_loading").remove();
+                  $(function(){
+                      $("#tags_part").jQCloud(word_array);
+                  });
+	          }
+	      },
+          error: function(XMLHttpRequest, textStatus, errorThrown){
+		      console.log(textStatus)
+		  }
+          
+	  });
+    </script>
+{% endblock %}
+
+{% block content %}
+<div id="tags_loading" class="row">
+  <div class="span6">
+    <div class="alert alert-success">Tag娘在很努力地加载中~ ヾ(･ω･*)ﾉ </div>
+  </div>
+  <div class="span8">
+    <img src="../static/img/loading.gif" />
+  </div>
+</div>
+<div id="tags_part"></div>
+{% endblock %}
