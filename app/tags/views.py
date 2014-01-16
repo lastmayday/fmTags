@@ -9,7 +9,6 @@ import tasks
 import hashlib
 import requests
 import math
-import pymongo
 from pymongo import MongoClient
 import random
 from bson import json_util
@@ -24,7 +23,6 @@ from ghost import Ghost
 ghost = Ghost()
 html_parser = HTMLParser.HTMLParser()
 mod = Blueprint('tags', __name__, url_prefix='')
-connection = pymongo.MongoClient()
 connection = MongoClient()
 db_12 = connection.movie_12
 tags_12 = db_12.tags
@@ -88,7 +86,9 @@ def get_fm():
                 flash(error, 'error')
                 return redirect(url_for("tags.index"))
             else:
-                ck = (login_r.cookies["ck"]).strip('"')
+                mine_url = "http://douban.fm/mine"
+                mine_r = login_s.get(mine_url)
+                ck = (mine_r.cookies["ck"]).strip('"')
                 like_url = "http://douban.fm/mine?type=liked#!type=liked"
                 like_r = login_s.get(like_url)
                 like_content = like_r.content
