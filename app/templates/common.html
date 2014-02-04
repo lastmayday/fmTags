@@ -7,7 +7,8 @@ function weiboShare(pic_url){
       wb_title = "分享一张豆瓣FM歌曲标签图~",
       wb_pic = window.location.origin + pic_url,
       wb_language = "zh_cn";
-      window.open("http://service.weibo.com/share/share.php?url="+wb_url+"&appkey="+wb_appkey+"&title="+wb_title+"&pic="+wb_pic+"&ralateUid="+wb_ralateUid+"&language="+wb_language+"");
+  console.log(wb_pic);
+  window.location.replace("http://service.weibo.com/share/share.php?url="+wb_url+"&appkey="+wb_appkey+"&title="+wb_title+"&pic="+wb_pic+"&ralateUid="+wb_ralateUid+"&language="+wb_language+"");
 }
 
 var getUrl = function(image){
