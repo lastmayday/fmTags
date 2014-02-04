@@ -4,34 +4,34 @@
 {% block css %}<link rel="stylesheet" href="static/css/jqcloud.css" />{% endblock %}
 {% block js %}
 <script src="static/js/jqcloud-1.0.4.min.js"></script>
+{% include "common.html" %}
 <script>
-     var task_id = $.cookie('task_id');
-      console.log(task_id);
-      $.ajax({
-	      type: "GET",
-          url: "/fm/result/"+task_id,
-          dataType: "json",
-          success: function(data){
-              data = data.data;
-              console.log(data.error);
-              if(data.error == false){
-                  var word_array = []
-	              var tags = data.tags;
-                  for(i=0;i<tags.length;i++){
-				      word_array.push({text: tags[i]['tag'], weight: tags[i]['per']});
-				  }
-				  $("#tags_loading").remove();
-                  $(function(){
-                      $("#tags_part").jQCloud(word_array);
-                  });
-	          }
-	      },
-          error: function(XMLHttpRequest, textStatus, errorThrown){
-		      console.log(textStatus)
-		  }
-          
-	  });
-    </script>
+var task_id = $.cookie('task_id');
+$.ajax({
+  type: "GET",
+  url: "/fm/result/"+task_id,
+  dataType: "json",
+  success: function(data){
+    data = data.data;
+    if(data.error == false){
+      var word_array = []
+	  var tags = data.tags;
+      for(i=0;i<tags.length;i++){
+	    word_array.push({text: tags[i]['tag'], weight: tags[i]['per']});
+	  }
+	  $("#tags_loading").remove();
+      $(function(){
+        var $tags_part = $("#tags_part");
+        $tags_part.jQCloud(word_array);
+        $("<button type='button' class='btn btn-info btn-sm' id='capture' onclick=cap_function()>分享到新浪微博</button>").insertAfter($tags_part);
+      });
+	}
+  },
+  error: function(XMLHttpRequest, textStatus, errorThrown){
+    console.log(textStatus)
+  }        
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -44,4 +44,5 @@
   </div>
 </div>
 <div id="tags_part"></div>
+<div id="canvas_part"></div>
 {% endblock %}

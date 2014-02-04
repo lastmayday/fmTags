@@ -1,0 +1,39 @@
+<script>
+function weiboShare(pic_url){
+  var wb_shareBtn = document.getElementById("share_weibo")
+      wb_url = document.URL,
+      wb_appkey = "956508678",
+      wb_ralateUid = "43360a069e9d340600bec17845adb9f4",
+      wb_title = "分享一张豆瓣FM歌曲标签图~",
+      wb_pic = window.location.origin + pic_url,
+      wb_language = "zh_cn";
+      window.open("http://service.weibo.com/share/share.php?url="+wb_url+"&appkey="+wb_appkey+"&title="+wb_title+"&pic="+wb_pic+"&ralateUid="+wb_ralateUid+"&language="+wb_language+"");
+}
+
+var getUrl = function(image){
+  $.ajax({
+    type: "POST",
+    url: "/api/image",
+    data: {"image": image},
+    dataType: "json",
+    success: function(data){
+      if(data.success){
+        weiboShare(data.url);
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown){
+      console.log(textStatus)
+    }        
+  });
+}
+
+var cap_function = function(){
+  html2canvas($("#tags_part"), {
+    onrendered: function(canvas){
+      var image = canvas.toDataURL("image/png");
+      getUrl(image);
+    },
+  });
+}
+
+</script>

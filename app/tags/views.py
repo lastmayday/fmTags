@@ -18,10 +18,14 @@ from functools import wraps
 from urlparse import urlparse
 import re
 import urllib2
+import base64
+import os
+import time
+
 from ghost import Ghost
 
-
 ghost = Ghost()
+
 html_parser = HTMLParser.HTMLParser()
 mod = Blueprint('tags', __name__, url_prefix='')
 connection = MongoClient()
@@ -90,9 +94,9 @@ def get_fm():
                 mine_url = "http://douban.fm/mine"
                 mine_r = login_s.get(mine_url)
                 ck = (mine_r.cookies["ck"]).strip('"')
-                like_url = "http://douban.fm/mine?type=liked#!type=liked"
-                like_r = login_s.get(like_url)
-                like_content = like_r.content
+                # like_url = "http://douban.fm/mine?type=liked#!type=liked"
+                # like_r = login_s.get(like_url)
+                # like_content = like_r.content
                 # script_re = re.compile(r'<script>([\s\S]+?)</script>')
                 # scripts = script_re.findall(like_content)
                 # script = scripts[-2]
@@ -142,7 +146,6 @@ def movie_tags():
 def get_movie_tags():
     res = tags_12.find().sort([('per', pymongo.DESCENDING)]).limit(60)
     retval = [json.dumps(tmp, default=json_util.default) for tmp in res]
-    print res
     data = {'error': False, 'tags': []}
     for res in retval:
         res = json.loads(res)
@@ -177,6 +180,29 @@ def shuffle_api():
         per = math.ceil(res['per'])
         data['tags'].append({'tag': tag.title(), 'per': per})
     return jsonify(data=data)
+
+
+@mod.route("/api/image", methods=['POST', 'GET'])
+def get_image_url():
+    if request.method == 'POST':
+        dataUrl = request.form['image']
+        parts = dataUrl.split(',');
+        imgData = parts[1]; 
+        imgData = base64.b64decode(imgData)
+        new_name = str(int(time.time())) + '.png'
+        file_url = 'app/static/capture/' + new_name
+        imgFile = open(os.path.join(os.getcwd(), file_url), 'wb')
+        imgFile.write(imgData)
+        data = {
+            'success': True,
+            'url': '/static/capture/' + new_name
+        }
+        return json.dumps(data)
+    data = {
+        'success': False
+    }
+    return json.dumps(data)
+        
 
 if __name__ == '__main__':
     mod.run(debug=True)

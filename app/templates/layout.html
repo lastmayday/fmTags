@@ -2,13 +2,13 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8"/>
-    <meta property="wb:webmaster" content="f117f09cefe278da" />
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="static/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
     <link href="static/css/style.css" rel="stylesheet"/>
     {% block css %}{% endblock %}
-    <script src="static/js/jquery-2.0.3.min.js"></script>
-    <script src="static/js/jquery.cookie.js"></script>
+    <script src="/static/js/jquery-2.0.3.min.js"></script>
+    <script src="/static/js/jquery.cookie.js"></script>
+    <script src="/static/js/html2canvas.js"></script>
     {% block js %}{% endblock %}
   </head>
   <body>
@@ -54,7 +54,8 @@
       &copy; Made by <a target="_blank" href="http://lastmayday.org/">lastmayday</a> Powered by <a target="_blank" href="http://www.hustonline.net">冰岩作坊</a>
     {% endblock %}
   </footer>
-<script>
+  {% block footjs %}{% endblock %}
+  <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -63,6 +64,6 @@
     ga('create', 'UA-38333678-3', 'hustonline.net');
     ga('send', 'pageview');
 
-</script>
+  </script>
   </body>
 </html>
