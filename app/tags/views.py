@@ -5,6 +5,7 @@ from flask import Blueprint, request, session, jsonify
 from flask import render_template, make_response, redirect, url_for
 from flask import g, flash
 import tasks
+import pymongo
 
 import hashlib
 import requests
