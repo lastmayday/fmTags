@@ -23,7 +23,7 @@ $.ajax({
       $(function(){
         var $tags_part = $("#tags_part");
         $tags_part.jQCloud(word_array);
-        $("<button type='button' class='btn btn-info btn-sm' id='capture' onclick=cap_function()>分享到新浪微博</button>").insertAfter($tags_part);
+        $("<button type='button' class='btn btn-info btn-sm' id='capture' onclick=cap_function('me')>分享到新浪微博</button>").insertAfter($tags_part);
       });
 	}
   },

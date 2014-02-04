@@ -1,17 +1,21 @@
 <script>
-function weiboShare(pic_url){
+function weiboShare(pic_url, me){
   var wb_shareBtn = document.getElementById("share_weibo")
       wb_url = document.URL,
       wb_appkey = "956508678",
       wb_ralateUid = "43360a069e9d340600bec17845adb9f4",
-      wb_title = "分享一张豆瓣FM歌曲标签图~",
       wb_pic = window.location.origin + pic_url,
       wb_language = "zh_cn";
+  if(me === 'me'){
+    var wb_title = "分享我的豆瓣FM歌曲标签图~";
+  } else{
+    wb_title = "分享一张豆瓣FM歌曲标签图~";
+  }
   console.log(wb_pic);
-  window.location.replace("http://service.weibo.com/share/share.php?url="+wb_url+"&appkey="+wb_appkey+"&title="+wb_title+"&pic="+wb_pic+"&ralateUid="+wb_ralateUid+"&language="+wb_language+"");
+  window.open("http://service.weibo.com/share/share.php?url="+wb_url+"&appkey="+wb_appkey+"&title="+wb_title+"&pic="+wb_pic+"&ralateUid="+wb_ralateUid+"&language="+wb_language+"");
 }
 
-var getUrl = function(image){
+var getUrl = function(image, me){
   $.ajax({
     type: "POST",
     url: "/api/image",
@@ -19,7 +23,7 @@ var getUrl = function(image){
     dataType: "json",
     success: function(data){
       if(data.success){
-        weiboShare(data.url);
+        weiboShare(data.url, me);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -28,11 +32,11 @@ var getUrl = function(image){
   });
 }
 
-var cap_function = function(){
+var cap_function = function(me){
   html2canvas($("#tags_part"), {
     onrendered: function(canvas){
       var image = canvas.toDataURL("image/png");
-      getUrl(image);
+      getUrl(image, me);
     },
   });
 }
