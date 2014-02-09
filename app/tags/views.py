@@ -113,7 +113,7 @@ def get_fm():
             flash(u"登录错误...", 'error')
             return redirect(url_for("tags.index"))
     else:
-        return redirect(url_for("tags.mine"))
+        return redirect(url_for("tags.mine_tags"))
 
 
 @mod.route("/fm/result/<task_id>")
