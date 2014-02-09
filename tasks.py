@@ -16,12 +16,14 @@ import threading
 import json
 from bson import json_util
 import time
+import hashlib
 
 connection = pymongo.MongoClient()
 db = connection.fm
 tags = db.tags
 queue = Queue()
 users = db.users
+song_tags = db.song_tags
 
 
 def get_songs(login_s, bid, ck, spbid):
@@ -78,11 +80,15 @@ class threadUrl(threading.Thread):
             url = info[0]
             tag_user_id = info[1]
             print url
+            url_hash = hashlib.md5(url).hexdigest()
             try:
-                res_tags = get_tags(url)
-                amount = 0.0
-                for t in res_tags:
-                    amount += int(t[1])
+                song_tag = song_tags.find_one({'url': url_hash})
+                if song_tag:
+                    res_tags = song_tag["tags"]
+                else:
+                    res_tags = get_tags(url)
+                    song_tags.insert({'url': url_hash, 'tags': res_tags})
+                amount = sum([float(t[1]) for t in res_tags])
                 for t in res_tags:
                     tag = t[0].lower()
                     tmp = tags.find_one({'user_id': tag_user_id, 'tag': tag})
@@ -95,7 +101,8 @@ class threadUrl(threading.Thread):
                     else:
                         tags.insert({'tag': tag, 'per': per, 'user_id': tag_user_id})
                 time.sleep(0.2)
-            except Exception:
+            except Exception, e:
+                print e
                 pass
             self.queue.task_done()
 

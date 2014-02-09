@@ -29,8 +29,6 @@ ghost = Ghost()
 html_parser = HTMLParser.HTMLParser()
 mod = Blueprint('tags', __name__, url_prefix='')
 connection = MongoClient()
-db_12 = connection.movie_12
-tags_12 = db_12.tags
 
 
 def requires_login(f):
@@ -136,23 +134,6 @@ def fm_result(task_id):
 @requires_login
 def mine_tags():
     return render_template("tags.html")
-
-
-@mod.route("/movie")
-def movie_tags():
-    return render_template("movie.html")
-
-@mod.route('/movie/tags/')
-def get_movie_tags():
-    res = tags_12.find().sort([('per', pymongo.DESCENDING)]).limit(60)
-    retval = [json.dumps(tmp, default=json_util.default) for tmp in res]
-    data = {'error': False, 'tags': []}
-    for res in retval:
-        res = json.loads(res)
-        tag = html_parser.unescape(res['tag'])
-        per = math.ceil(res['per'])
-        data['tags'].append({'tag': tag.title(), 'per': per})
-    return jsonify(data=data)
     
 
 @mod.route("/shuffle")
