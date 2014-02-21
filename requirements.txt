@@ -1,0 +1,6 @@
+Flask
+Requests
+Celery
+Redis
+Pymongo
+Ghost.py

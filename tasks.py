@@ -127,7 +127,7 @@ def fm_task(login_s, bid, ck, user_id,spbid):
         return False
 
     queue.join()
-    print "down"    
+    print "done"    
     res = tags.find({'user_id':tag_user_id}).sort([('per', pymongo.DESCENDING)]).limit(60)
     data = [json.dumps(tmp, default=json_util.default) for tmp in res]
     return data
